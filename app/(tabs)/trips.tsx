@@ -1,12 +1,12 @@
 import { View,Text } from "react-native";
 import React from 'react'
-
-const Page = () => {
+import Tabs from "expo-router"
+const Trips = () => {
   return(
 <View>
-  <Text>Page</Text>
+  <Text>Trips</Text>
 </View>
   );
 };
 
-export default Page
+export default Trips
