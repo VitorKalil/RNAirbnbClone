@@ -1,12 +1,36 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+//VITOR: this import below is from the expo secure store package to keep senstive info
+import * as SecureStore from 'expo-secure-store' //VITOR: install with npx expo install expo-secure-store
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo'; //VITOR CLERK (tenho conta no site): npm install @clerk/clerk-expo
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY; //VITOR: getting the key from the .env file
 
+const tokenCache = {
+  async getToken(key:string) {
+    try{
+      return SecureStore.getItemAsync(key);
+    } catch (err) {
+      return null;
+    }
+  },
+  async saveToken(key:string,value:string) {
+    try{
+      return SecureStore.setItemAsync(key,value);
+    } catch (err) {
+      return;
+    }
+  }
+}
+
+//VITOR: this was already here, part of the template
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -20,6 +44,7 @@ export const unstable_settings = {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+// VITOR: here I changed the font to Montserrat
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     "mon": require("../assets/fonts/Montserrat-Regular.ttf"),
@@ -43,15 +68,52 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
 
 
   return (
-      <Stack>
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
+      <RootLayoutNav />
+    </ClerkProvider>
+)
+}
+
+function RootLayoutNav() {
+//VITOR: added this for navigation
+const router = useRouter()
+//VITOR: added this for authentication
+const {isLoaded,isSignedIn} = useAuth();
+useEffect(()=> {
+  if (isLoaded && !isSignedIn){
+    router.push('/(modals)/login')
+  }
+},[isLoaded])
+//VITOR:
+//here we define how each screen show be shown with the Stack.Screen JSX tag and its options
+// for the tabs we create a simple change, for the login we create a modal view (this easy!)
+// and for the booking view we use a nice animation! (right now it doesn't have bg though)
+  return (
+      <Stack> 
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name='(modals)/login' options={{
+          title:'Log in or sign up',
+          headerTitleStyle: {fontFamily:'mon-sb'},
+          presentation:'modal',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() =>  router.back()}>
+              <Ionicons name='close-outline' size={28}/>
+            </TouchableOpacity>
+          )
+        }}/>
+        <Stack.Screen name='listing/[id]' options={{headerTitle:''}}/>
+        <Stack.Screen name='(modals)/booking' options={{
+          presentation: 'transparentModal',
+          animation:'fade',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name='close-outline' size={28}/>
+            </TouchableOpacity>
+          )
+        }} />
       </Stack>
   );
 }
