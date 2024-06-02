@@ -13,7 +13,7 @@ const Layout = () => {
       tabBarIcon:({color,size}) => <Ionicons name='search' color={color} size={size} />
     }
   }/>
-  <Tabs.Screen name="wishlist" options={
+  <Tabs.Screen name="wishlists" options={
     {
       tabBarLabel:'Wishlist',
       tabBarIcon:({color,size}) => <Ionicons name='heart-outline' color={color} size={size} />
@@ -22,7 +22,7 @@ const Layout = () => {
   <Tabs.Screen name="trips" options={
     {
       tabBarLabel:'Trips',
-      tabBarIcon:({color,size}) => <FontAwesome5 name='aitbnb' color={color} size={size} />
+      tabBarIcon:({color,size}) => <FontAwesome5 name='airbnb' color={color} size={size} />
     }
   }/>
   <Tabs.Screen name="inbox" options={

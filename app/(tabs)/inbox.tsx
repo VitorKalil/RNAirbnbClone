@@ -1,12 +1,12 @@
 import { View,Text } from "react-native";
 import React from 'react'
-
-const Page = () => {
+import Tabs from "expo-router"
+const Inbox = () => {
   return(
 <View>
-  <Text>Login</Text>
+  <Text>Inbox</Text>
 </View>
   );
 };
 
-export default Page
+export default Inbox
